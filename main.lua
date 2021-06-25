@@ -1,7 +1,11 @@
 local function mainclass()
-
-	function released()
-		local target = game.Players:FindFirstChild(tostring(script.Parent.JailPlayer.Text))
+	
+	local players = game:GetService("Players")
+	local jail = script.Parent.Jailed
+	local release = script.Parent.Released
+	
+	local function released(player, text)
+		local target = players:FindFirstChild(text)
 		if target ~= nil then
 			wait(target.Character.Time.Value)
 			target.Character.Time.Value = 0
@@ -10,27 +14,26 @@ local function mainclass()
 			print("invalid")
 		end
 	end
-
-	function jailed()
-		local target = game.Players:FindFirstChild(tostring(script.Parent.JailPlayer.Text))
+	
+	local function jailed(player, text, timesentenced)
+		local target = players:FindFirstChild(text)
 		if target ~= nil then
-			local Time = tonumber(script.Parent.TimeSentenced.Text)
-			target.Character.Time.Value = Time
 			target.TeamColor = BrickColor.new("Maroon")
+			target.Character.Time.Value = tonumber(timesentenced)
 			if target.Backpack:GetChildren() then
-				for _,v in pairs(target.Backpack:GetChildren()) do
+				for i, v in pairs(target.Backpack:GetChildren()) do
 					local child = target.Backpack:FindFirstChild(tostring(v))
 					child:Destroy()
 				end
 			end
 			target.Character:BreakJoints()
-			released()
+			release.OnServerEvent:Connect(released)
 		else
 			print("invalid")
 		end
 	end
-
-	script.Parent.TimeSentenced.FocusLost:Connect(jailed)
+	
+	jail.OnServerEvent:Connect(jailed)
 end
 
-mainclass() 
+mainclass()
